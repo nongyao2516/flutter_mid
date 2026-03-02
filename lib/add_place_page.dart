@@ -19,12 +19,30 @@ class _AddProductPageState extends State<AddProductPage> {
   ////////////////////////////////////////////////////////////
 
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController provinceController = TextEditingController();
   final TextEditingController descController = TextEditingController();
-  final TextEditingController mapUrlController = TextEditingController();
+final TextEditingController addressController = TextEditingController();
 
   ////////////////////////////////////////////////////////////
-  // ✅ Image (ใช้ XFile รองรับ Web)
+  // ✅ Province Dropdown
+  ////////////////////////////////////////////////////////////
+
+  final List<String> provinces = [
+    "กรุงเทพฯ",
+    "เชียงใหม่",
+    "ภูเก็ต",
+    "ขอนแก่น",
+    "ชลบุรี",
+    "นครราชสีมา",
+    "สงขลา",
+    "สุราษฎร์ธานี",
+    "อุบลราชธานี",
+    "พระนครศรีอยุธยา"
+  ];
+
+  String? selectedProvince;
+
+  ////////////////////////////////////////////////////////////
+  // ✅ Image Picker
   ////////////////////////////////////////////////////////////
 
   XFile? selectedImage;
@@ -44,7 +62,7 @@ class _AddProductPageState extends State<AddProductPage> {
   }
 
   ////////////////////////////////////////////////////////////
-  // ✅ Save Product + Upload Image
+  // ✅ Save Product
   ////////////////////////////////////////////////////////////
 
   Future<void> saveProduct() async {
@@ -52,6 +70,13 @@ class _AddProductPageState extends State<AddProductPage> {
     if (selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("กรุณาเลือกรูปภาพ")),
+      );
+      return;
+    }
+
+    if (selectedProvince == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("กรุณาเลือกจังหวัด")),
       );
       return;
     }
@@ -67,12 +92,13 @@ class _AddProductPageState extends State<AddProductPage> {
     ////////////////////////////////////////////////////////////
 
     request.fields['name'] = nameController.text;
-    request.fields['province'] = provinceController.text;
+    request.fields['province'] = selectedProvince!;
     request.fields['description'] = descController.text;
-    request.fields['map_url'] = mapUrlController.text;
+    request.fields['address'] = addressController.text;
+   
 
     ////////////////////////////////////////////////////////////
-    // ✅ Upload Image (แยก Web / Mobile)
+    // ✅ Upload Image (Web / Mobile)
     ////////////////////////////////////////////////////////////
 
     if (kIsWeb) {
@@ -98,7 +124,7 @@ class _AddProductPageState extends State<AddProductPage> {
     }
 
     ////////////////////////////////////////////////////////////
-    // ✅ Execute
+    // ✅ Execute Request
     ////////////////////////////////////////////////////////////
 
     var response = await request.send();
@@ -129,17 +155,19 @@ class _AddProductPageState extends State<AddProductPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("เพิ่มสถานที่ท่องเที่ยว")),
+      appBar: AppBar(
+        title: const Text("เพิ่มสถานที่ท่องเที่ยว"),
+      ),
 
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
 
         child: SingleChildScrollView(
           child: Column(
             children: [
 
               ////////////////////////////////////////////////////////////
-              // 🖼 Image Preview (สำคัญมาก)
+              // 🖼 Image Preview
               ////////////////////////////////////////////////////////////
 
               GestureDetector(
@@ -156,11 +184,11 @@ class _AddProductPageState extends State<AddProductPage> {
                         )
                       : kIsWeb
                           ? Image.network(
-                              selectedImage!.path, // ✅ Web
+                              selectedImage!.path,
                               fit: BoxFit.cover,
                             )
                           : Image.file(
-                              File(selectedImage!.path), // ✅ Mobile
+                              File(selectedImage!.path),
                               fit: BoxFit.cover,
                             ),
                 ),
@@ -181,21 +209,44 @@ class _AddProductPageState extends State<AddProductPage> {
               ),
 
               const SizedBox(height: 15),
-
-              ////////////////////////////////////////////////////////////
-              // 🏷 Province
+               ////////////////////////////////////////////////////////////
+              // 🏷 Address
               ////////////////////////////////////////////////////////////
 
               TextField(
-                controller: provinceController,
+                controller: addressController,
                 decoration: const InputDecoration(
-                  labelText: "จังหวัด",
+                  labelText: "ที่อยู่",
                   border: OutlineInputBorder(),
                 ),
               ),
 
               const SizedBox(height: 15),
 
+              ////////////////////////////////////////////////////////////
+              // 🏷 Province Dropdown
+              ////////////////////////////////////////////////////////////
+
+              DropdownButtonFormField<String>(
+                value: selectedProvince,
+                decoration: const InputDecoration(
+                  labelText: "จังหวัด",
+                  border: OutlineInputBorder(),
+                ),
+                items: provinces.map((province) {
+                  return DropdownMenuItem(
+                    value: province,
+                    child: Text(province),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedProvince = value;
+                  });
+                },
+              ),
+
+              const SizedBox(height: 15),
 
               ////////////////////////////////////////////////////////////
               // 📝 Description
@@ -210,23 +261,12 @@ class _AddProductPageState extends State<AddProductPage> {
                 ),
               ),
 
-              const SizedBox(height: 20),
-                // 📝 Map URL
-              ////////////////////////////////////////////////////////////
+              const SizedBox(height: 15),
 
-              TextField(
-                controller: mapUrlController,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: "URL แผนที่",
-                  border: OutlineInputBorder(),
-                ),
-              ),
 
-              const SizedBox(height: 20),
 
               ////////////////////////////////////////////////////////////
-              // ✅ Button
+              // ✅ Save Button
               ////////////////////////////////////////////////////////////
 
               SizedBox(

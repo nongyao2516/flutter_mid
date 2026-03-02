@@ -20,6 +20,7 @@ class EditProductPage extends StatefulWidget {
 class _EditProductPageState extends State<EditProductPage> {
 
   late TextEditingController nameController;
+  late TextEditingController addressController;
   late TextEditingController provinceController;
   late TextEditingController descController;
 
@@ -31,6 +32,9 @@ class _EditProductPageState extends State<EditProductPage> {
 
     nameController =
         TextEditingController(text: widget.product['name']);
+
+    addressController =
+        TextEditingController(text: widget.product['address']);
 
     provinceController =
         TextEditingController(text: widget.product['province']);
@@ -76,6 +80,7 @@ class _EditProductPageState extends State<EditProductPage> {
       request.fields['name'] = nameController.text;
       request.fields['province'] = provinceController.text;
       request.fields['description'] = descController.text;
+      request.fields['address'] = addressController.text;
       request.fields['old_image'] = widget.product['image'];
 
       ////////////////////////////////////////////////////////
@@ -185,6 +190,12 @@ class _EditProductPageState extends State<EditProductPage> {
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(labelText: "ชื่อสถานที่ท่องเที่ยว"),
+              ),
+
+              const SizedBox(height: 10),
+             TextField(
+                controller: addressController,
+                decoration: const InputDecoration(labelText: "ที่อยู่"),
               ),
 
               const SizedBox(height: 10),

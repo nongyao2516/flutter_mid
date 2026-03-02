@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
+
 
 import 'add_place_page.dart';
 import 'edit_place_page.dart';
@@ -350,7 +350,16 @@ class ProductDetail extends StatelessWidget {
             Text(product['description'] ?? ''),
 
             const SizedBox(height: 10),
+ //////////////////////////////////////////////////////
+            // 💰 Address
+            //////////////////////////////////////////////////////
 
+            Text(
+              'ที่อยู่: ${product['address'] ?? ''}',
+              style: const TextStyle(fontSize: 18),
+            ),
+
+ const SizedBox(height: 10),
             //////////////////////////////////////////////////////
             // 💰 PROVINCE
             //////////////////////////////////////////////////////
@@ -360,54 +369,8 @@ class ProductDetail extends StatelessWidget {
               style: const TextStyle(fontSize: 18),
             ),
 
- const SizedBox(height: 10),
-
-            //////////////////////////////////////////////////////
-            // 💰 map url
-            //////////////////////////////////////////////////////
-// 💰 map url
-//////////////////////////////////////////////////////
-
-Builder(
-  builder: (context) {
-    final String url = product['map_url'] ?? '';
-
-    if (url.isEmpty) {
-      return const Text(
-        'ไม่มี URL แผนที่',
-        style: TextStyle(fontSize: 18, color: Colors.grey),
-      );
-    }
-
-    return InkWell(
-      onTap: () async {
-        final Uri uri = Uri.parse(url);
-
-        if (await canLaunchUrl(uri)) {
-          await launchUrl(
-            uri,
-            mode: LaunchMode.externalApplication,
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("ไม่สามารถเปิดลิงก์ได้"),
-            ),
-          );
-        }
-      },
-      child: Text(
-        url,
-        style: const TextStyle(
-          fontSize: 18,
-          color: Colors.blue,
-          decoration: TextDecoration.underline,
-        ),
-      ),
-    );
-  },
-),
-
+         const SizedBox(height: 10),
+     
 
           ],
         ),

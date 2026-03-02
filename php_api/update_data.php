@@ -16,6 +16,7 @@ try {
 
     $id = $_POST['id'];
     $name = $_POST['name'];
+    $address = $_POST['address'];
     $province = $_POST['province'];
     $description = $_POST['description'];
     $oldImage = $_POST['old_image'];
@@ -46,6 +47,7 @@ try {
     $sql = "UPDATE places 
             SET name = :name,
                 province = :province,
+                address = :address,
                 description = :description,
                 image = :image
             WHERE id = :id";
@@ -55,6 +57,7 @@ try {
     $stmt->bindParam(':id', $id);
     $stmt->bindParam(':name', $name);
     $stmt->bindParam(':province', $province);
+    $stmt->bindParam(':address', $address);
     $stmt->bindParam(':description', $description);
     $stmt->bindParam(':image', $imageName);
 
