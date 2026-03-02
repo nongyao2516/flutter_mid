@@ -21,8 +21,28 @@ class _EditProductPageState extends State<EditProductPage> {
 
   late TextEditingController nameController;
   late TextEditingController addressController;
-  late TextEditingController provinceController;
   late TextEditingController descController;
+
+ final List<String> provinces = [
+    "กรุงเทพมหานคร",
+    "เชียงใหม่",
+    "ภูเก็ต",
+    "ขอนแก่น",
+    "ชลบุรี",
+    "นครราชสีมา",
+    "สงขลา",
+    "สุราษฎร์ธานี",
+    "อุบลราชธานี",
+    "อยุธยา"
+  ];
+
+  String? selectedProvince;
+
+
+
+
+
+
 
   XFile? selectedImage;
 
@@ -35,13 +55,20 @@ class _EditProductPageState extends State<EditProductPage> {
 
     addressController =
         TextEditingController(text: widget.product['address']);
-
-    provinceController =
-        TextEditingController(text: widget.product['province']);
-
     descController =
         TextEditingController(text: widget.product['description']);
-  }
+
+     // ✅ ตั้งค่า dropdown เริ่มต้นจากข้อมูลเดิม
+    String? provinceFromDB = widget.product['province'];
+
+      if (provinceFromDB != null &&
+          provinces.contains(provinceFromDB)) {
+        selectedProvince = provinceFromDB;
+      } else {
+        selectedProvince = null;
+      }
+
+ }
 
   ////////////////////////////////////////////////////////////
   // ✅ PICK IMAGE
@@ -49,7 +76,6 @@ class _EditProductPageState extends State<EditProductPage> {
 
   Future<void> pickImage() async {
     final picker = ImagePicker();
-
     final pickedFile =
         await picker.pickImage(source: ImageSource.gallery);
 
@@ -65,6 +91,14 @@ class _EditProductPageState extends State<EditProductPage> {
   ////////////////////////////////////////////////////////////
 
   Future<void> updateProduct() async {
+    //เพิ่มการตรวจสอบว่าผู้ใช้เลือกจังหวัดหรือไม่
+     if (selectedProvince == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("กรุณาเลือกจังหวัด")),
+      );
+      return;
+    }
+    
     try {
 
       var request = http.MultipartRequest(
@@ -78,7 +112,8 @@ class _EditProductPageState extends State<EditProductPage> {
 
       request.fields['id'] = widget.product['id'].toString();
       request.fields['name'] = nameController.text;
-      request.fields['province'] = provinceController.text;
+     // เพิ่มการส่งข้อมูลจังหวัดที่เลือก
+     request.fields['province'] =  selectedProvince!;
       request.fields['description'] = descController.text;
       request.fields['address'] = addressController.text;
       request.fields['old_image'] = widget.product['image'];
@@ -200,11 +235,28 @@ class _EditProductPageState extends State<EditProductPage> {
 
               const SizedBox(height: 10),
 
-              TextField(
-                controller: provinceController,
-                decoration: const InputDecoration(labelText: "จังหวัด"),
-              ),
+             //////////////////////////////////////////////////
+              // 🏷 Province Dropdown
+              //////////////////////////////////////////////////
 
+         DropdownButtonFormField<String>(
+  value: selectedProvince,
+  hint: const Text("เลือกจังหวัด"),
+  decoration: const InputDecoration(
+    labelText: "จังหวัด",
+  ),
+  items: provinces.map((province) {
+    return DropdownMenuItem(
+      value: province,
+      child: Text(province),
+    );
+  }).toList(),
+  onChanged: (value) {
+    setState(() {
+      selectedProvince = value;
+    });
+  },
+),
               const SizedBox(height: 10),
 
               TextField(
